@@ -25,4 +25,11 @@ public class OrderService {
     return orderRepository.findById(id)
         .orElseThrow(() -> new RuntimeException("order not found"));
   }
+
+  public void deleteOrder(Long id) {
+    if (!orderRepository.existsById(id)) {
+      throw new RuntimeException("order not found");
+    }
+    orderRepository.deleteById(id);
+  }
 }
