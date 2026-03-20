@@ -15,6 +15,16 @@ public class OrderService {
   private final OrderRepository orderRepository;
 
   public Order createOrder(Order order) {
+    if (order.getItems() != null) {
+      order.getItems().forEach(item -> item.setOrder(order));
+    }
+
+    double total = order.getItems().stream()
+        .mapToDouble(item -> item.getQuantity() * item.getUnitPrice())
+        .sum();
+
+    order.setTotalAmount(total);
+
     return orderRepository.save(order);
   }
 
@@ -40,9 +50,23 @@ public class OrderService {
 
     existingOrder.setVendor(updatedOrder.getVendor());
     existingOrder.setDescription(updatedOrder.getDescription());
-    existingOrder.setTotalAmount(updatedOrder.getTotalAmount());
     existingOrder.setStatus(updatedOrder.getStatus());
     existingOrder.setUpdatedBy(updatedOrder.getUpdatedBy());
+
+    existingOrder.getItems().clear();
+
+    if (updatedOrder.getItems() != null) {
+      updatedOrder.getItems().forEach(item -> {
+        item.setOrder(existingOrder);
+        existingOrder.getItems().add(item);
+      });
+    }
+
+    double total = existingOrder.getItems().stream()
+        .mapToDouble(item -> item.getQuantity() * item.getUnitPrice())
+        .sum();
+
+    existingOrder.setTotalAmount(total);
 
     return orderRepository.save(existingOrder);
   }
