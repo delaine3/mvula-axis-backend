@@ -32,4 +32,17 @@ public class OrderService {
     }
     orderRepository.deleteById(id);
   }
+
+  public Order updateOrder(Long id, Order updatedOrder) {
+    Order existingOrder = orderRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("order not found"));
+
+    existingOrder.setVendor(updatedOrder.getVendor());
+    existingOrder.setDescription(updatedOrder.getDescription());
+    existingOrder.setTotalAmount(updatedOrder.getTotalAmount());
+    existingOrder.setStatus(updatedOrder.getStatus());
+    existingOrder.setUpdatedBy(updatedOrder.getUpdatedBy());
+
+    return orderRepository.save(existingOrder);
+  }
 }
