@@ -3,9 +3,9 @@ package com.mvula.axis.order.entity;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,8 +26,8 @@ public class Order {
 
   private String description;
 
-  @PositiveOrZero
-  private Double totalAmount;
+  @Column(nullable = false)
+  private BigDecimal totalAmount = BigDecimal.ZERO;
 
   @NotBlank
   @Column(nullable = false)

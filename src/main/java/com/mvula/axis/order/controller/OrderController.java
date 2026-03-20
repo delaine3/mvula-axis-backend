@@ -1,11 +1,11 @@
 package com.mvula.axis.order.controller;
 
+import com.mvula.axis.order.dto.OrderRequest;
 import com.mvula.axis.order.entity.Order;
 import com.mvula.axis.order.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import com.mvula.axis.order.dto.OrderRequest;
 
 import java.util.List;
 
@@ -31,13 +31,13 @@ public class OrderController {
     return orderService.getOrderById(id);
   }
 
-  @DeleteMapping("/{id}")
-  public void deleteOrder(@PathVariable Long id) {
-    orderService.deleteOrder(id);
-  }
-
   @PutMapping("/{id}")
   public Order updateOrder(@PathVariable Long id, @Valid @RequestBody OrderRequest orderRequest) {
     return orderService.updateOrder(id, orderRequest);
+  }
+
+  @DeleteMapping("/{id}")
+  public void deleteOrder(@PathVariable Long id) {
+    orderService.deleteOrder(id);
   }
 }

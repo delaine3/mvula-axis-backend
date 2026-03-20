@@ -2,9 +2,12 @@ package com.mvula.axis.order.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Data;
+
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "order_items")
@@ -24,9 +27,9 @@ public class OrderItem {
   @Column(nullable = false)
   private Integer quantity;
 
-  @PositiveOrZero
+  @DecimalMin(value = "0.0", inclusive = true)
   @Column(nullable = false)
-  private Double unitPrice;
+  private BigDecimal unitPrice;
 
   @ManyToOne
   @JoinColumn(name = "order_id", nullable = false)

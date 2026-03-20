@@ -1,14 +1,14 @@
 package com.mvula.axis.order.service;
 
 import com.mvula.axis.common.exception.ResourceNotFoundException;
+import com.mvula.axis.order.dto.OrderRequest;
 import com.mvula.axis.order.entity.Order;
 import com.mvula.axis.order.entity.OrderItem;
 import com.mvula.axis.order.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import com.mvula.axis.order.dto.OrderItemRequest;
-import com.mvula.axis.order.dto.OrderRequest;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -36,11 +36,7 @@ public class OrderService {
       });
     }
 
-    double total = order.getItems().stream()
-        .mapToDouble(item -> item.getQuantity() * item.getUnitPrice())
-        .sum();
-
-    order.setTotalAmount(total);
+    order.setTotalAmount(calculateTotal(order.getItems()));
 
     return orderRepository.save(order);
   }
@@ -51,14 +47,7 @@ public class OrderService {
 
   public Order getOrderById(Long id) {
     return orderRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("order not found"));
-  }
-
-  public void deleteOrder(Long id) {
-    if (!orderRepository.existsById(id)) {
-      throw new RuntimeException("order not found");
-    }
-    orderRepository.deleteById(id);
+        .orElseThrow(() -> new ResourceNotFoundException("order not found"));
   }
 
   public Order updateOrder(Long id, OrderRequest orderRequest) {
@@ -83,12 +72,25 @@ public class OrderService {
       });
     }
 
-    double total = existingOrder.getItems().stream()
-        .mapToDouble(item -> item.getQuantity() * item.getUnitPrice())
-        .sum();
-
-    existingOrder.setTotalAmount(total);
+    existingOrder.setTotalAmount(calculateTotal(existingOrder.getItems()));
 
     return orderRepository.save(existingOrder);
+  }
+
+  public void deleteOrder(Long id) {
+    if (!orderRepository.existsById(id)) {
+      throw new ResourceNotFoundException("order not found");
+    }
+    orderRepository.deleteById(id);
+  }
+
+  private BigDecimal calculateTotal(List<OrderItem> items) {
+    if (items == null || items.isEmpty()) {
+      return BigDecimal.ZERO;
+    }
+
+    return items.stream()
+        .map(item -> item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+        .reduce(BigDecimal.ZERO, BigDecimal::add);
   }
 }
