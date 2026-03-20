@@ -1,5 +1,6 @@
 package com.mvula.axis.order.service;
 
+import com.mvula.axis.common.exception.ResourceNotFoundException;
 import com.mvula.axis.order.entity.Order;
 import com.mvula.axis.order.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +36,7 @@ public class OrderService {
 
   public Order updateOrder(Long id, Order updatedOrder) {
     Order existingOrder = orderRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("order not found"));
+        .orElseThrow(() -> new ResourceNotFoundException("order not found"));
 
     existingOrder.setVendor(updatedOrder.getVendor());
     existingOrder.setDescription(updatedOrder.getDescription());
