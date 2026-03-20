@@ -2,9 +2,12 @@ package com.mvula.axis.order.service;
 
 import com.mvula.axis.common.exception.ResourceNotFoundException;
 import com.mvula.axis.order.entity.Order;
+import com.mvula.axis.order.entity.OrderItem;
 import com.mvula.axis.order.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import com.mvula.axis.order.dto.OrderItemRequest;
+import com.mvula.axis.order.dto.OrderRequest;
 
 import java.util.List;
 
@@ -14,9 +17,23 @@ public class OrderService {
 
   private final OrderRepository orderRepository;
 
-  public Order createOrder(Order order) {
-    if (order.getItems() != null) {
-      order.getItems().forEach(item -> item.setOrder(order));
+  public Order createOrder(OrderRequest orderRequest) {
+    Order order = new Order();
+    order.setVendor(orderRequest.getVendor());
+    order.setDescription(orderRequest.getDescription());
+    order.setStatus(orderRequest.getStatus());
+    order.setCreatedBy(orderRequest.getCreatedBy());
+    order.setUpdatedBy(orderRequest.getUpdatedBy());
+
+    if (orderRequest.getItems() != null) {
+      orderRequest.getItems().forEach(itemRequest -> {
+        OrderItem item = new OrderItem();
+        item.setProductName(itemRequest.getProductName());
+        item.setQuantity(itemRequest.getQuantity());
+        item.setUnitPrice(itemRequest.getUnitPrice());
+        item.setOrder(order);
+        order.getItems().add(item);
+      });
     }
 
     double total = order.getItems().stream()
@@ -44,19 +61,23 @@ public class OrderService {
     orderRepository.deleteById(id);
   }
 
-  public Order updateOrder(Long id, Order updatedOrder) {
+  public Order updateOrder(Long id, OrderRequest orderRequest) {
     Order existingOrder = orderRepository.findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("order not found"));
 
-    existingOrder.setVendor(updatedOrder.getVendor());
-    existingOrder.setDescription(updatedOrder.getDescription());
-    existingOrder.setStatus(updatedOrder.getStatus());
-    existingOrder.setUpdatedBy(updatedOrder.getUpdatedBy());
+    existingOrder.setVendor(orderRequest.getVendor());
+    existingOrder.setDescription(orderRequest.getDescription());
+    existingOrder.setStatus(orderRequest.getStatus());
+    existingOrder.setUpdatedBy(orderRequest.getUpdatedBy());
 
     existingOrder.getItems().clear();
 
-    if (updatedOrder.getItems() != null) {
-      updatedOrder.getItems().forEach(item -> {
+    if (orderRequest.getItems() != null) {
+      orderRequest.getItems().forEach(itemRequest -> {
+        OrderItem item = new OrderItem();
+        item.setProductName(itemRequest.getProductName());
+        item.setQuantity(itemRequest.getQuantity());
+        item.setUnitPrice(itemRequest.getUnitPrice());
         item.setOrder(existingOrder);
         existingOrder.getItems().add(item);
       });

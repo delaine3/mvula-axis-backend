@@ -5,6 +5,7 @@ import com.mvula.axis.order.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import com.mvula.axis.order.dto.OrderRequest;
 
 import java.util.List;
 
@@ -16,8 +17,8 @@ public class OrderController {
   private final OrderService orderService;
 
   @PostMapping
-  public Order createOrder(@Valid @RequestBody Order order) {
-    return orderService.createOrder(order);
+  public Order createOrder(@Valid @RequestBody OrderRequest orderRequest) {
+    return orderService.createOrder(orderRequest);
   }
 
   @GetMapping
@@ -36,7 +37,7 @@ public class OrderController {
   }
 
   @PutMapping("/{id}")
-  public Order updateOrder(@PathVariable Long id, @Valid @RequestBody Order order) {
-    return orderService.updateOrder(id, order);
+  public Order updateOrder(@PathVariable Long id, @Valid @RequestBody OrderRequest orderRequest) {
+    return orderService.updateOrder(id, orderRequest);
   }
 }
