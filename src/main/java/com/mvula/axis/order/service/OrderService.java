@@ -93,4 +93,27 @@ public class OrderService {
         .map(item -> item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
         .reduce(BigDecimal.ZERO, BigDecimal::add);
   }
+
+  public Order patchOrder(Long id, OrderRequest orderRequest) {
+    Order existingOrder = orderRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("order not found"));
+
+    if (orderRequest.getVendor() != null) {
+      existingOrder.setVendor(orderRequest.getVendor());
+    }
+
+    if (orderRequest.getDescription() != null) {
+      existingOrder.setDescription(orderRequest.getDescription());
+    }
+
+    if (orderRequest.getStatus() != null) {
+      existingOrder.setStatus(orderRequest.getStatus());
+    }
+
+    if (orderRequest.getUpdatedBy() != null) {
+      existingOrder.setUpdatedBy(orderRequest.getUpdatedBy());
+    }
+
+    return orderRepository.save(existingOrder);
+  }
 }

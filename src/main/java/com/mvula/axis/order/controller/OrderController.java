@@ -40,4 +40,9 @@ public class OrderController {
   public void deleteOrder(@PathVariable Long id) {
     orderService.deleteOrder(id);
   }
+
+  @PatchMapping("/{id}")
+  public Order patchOrder(@PathVariable Long id, @RequestBody OrderRequest orderRequest) {
+    return orderService.patchOrder(id, orderRequest);
+  }
 }
