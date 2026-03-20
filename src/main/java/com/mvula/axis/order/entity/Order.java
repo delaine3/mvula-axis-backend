@@ -1,6 +1,8 @@
 package com.mvula.axis.order.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -14,13 +16,16 @@ public class Order {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  @NotBlank
   @Column(nullable = false)
   private String vendor;
 
   private String description;
 
+  @PositiveOrZero
   private Double totalAmount;
 
+  @NotBlank
   @Column(nullable = false)
   private String status;
 
