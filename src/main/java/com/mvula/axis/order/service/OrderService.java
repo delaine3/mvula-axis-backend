@@ -7,6 +7,9 @@ import com.mvula.axis.order.entity.OrderItem;
 import com.mvula.axis.order.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import com.mvula.axis.order.dto.OrderItemCreateRequest;
+import com.mvula.axis.order.dto.OrderItemPatchRequest;
+import com.mvula.axis.order.repository.OrderItemRepository;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -16,31 +19,66 @@ import java.util.List;
 public class OrderService {
 
   private final OrderRepository orderRepository;
+  private final OrderItemRepository orderItemRepository;
 
-  public Order createOrder(OrderRequest orderRequest) {
-    Order order = new Order();
-    order.setVendor(orderRequest.getVendor());
-    order.setDescription(orderRequest.getDescription());
-    order.setStatus(orderRequest.getStatus());
-    order.setCreatedBy(orderRequest.getCreatedBy());
-    order.setUpdatedBy(orderRequest.getUpdatedBy());
+  public Order addItemToOrder(Long orderId, OrderItemCreateRequest itemRequest) {
+    Order order = orderRepository.findById(orderId)
+        .orElseThrow(() -> new ResourceNotFoundException("order not found"));
 
-    if (orderRequest.getItems() != null) {
-      orderRequest.getItems().forEach(itemRequest -> {
-        OrderItem item = new OrderItem();
-        item.setProductName(itemRequest.getProductName());
-        item.setQuantity(itemRequest.getQuantity());
-        item.setUnitPrice(itemRequest.getUnitPrice());
-        item.setOrder(order);
-        order.getItems().add(item);
-      });
+    OrderItem item = new OrderItem();
+    item.setProductName(itemRequest.getProductName());
+    item.setQuantity(itemRequest.getQuantity());
+    item.setUnitPrice(itemRequest.getUnitPrice());
+    item.setOrder(order);
+
+    order.getItems().add(item);
+    order.setTotalAmount(calculateTotal(order.getItems()));
+
+    return orderRepository.save(order);
+  }
+  public Order patchOrderItem(Long orderId, Long itemId, OrderItemPatchRequest itemRequest) {
+    Order order = orderRepository.findById(orderId)
+        .orElseThrow(() -> new ResourceNotFoundException("order not found"));
+
+    OrderItem item = orderItemRepository.findById(itemId)
+        .orElseThrow(() -> new ResourceNotFoundException("order item not found"));
+
+    if (!item.getOrder().getId().equals(orderId)) {
+      throw new ResourceNotFoundException("order item not found in this order");
+    }
+
+    if (itemRequest.getProductName() != null) {
+      item.setProductName(itemRequest.getProductName());
+    }
+
+    if (itemRequest.getQuantity() != null) {
+      item.setQuantity(itemRequest.getQuantity());
+    }
+
+    if (itemRequest.getUnitPrice() != null) {
+      item.setUnitPrice(itemRequest.getUnitPrice());
     }
 
     order.setTotalAmount(calculateTotal(order.getItems()));
 
     return orderRepository.save(order);
   }
+  public Order deleteOrderItem(Long orderId, Long itemId) {
+    Order order = orderRepository.findById(orderId)
+        .orElseThrow(() -> new ResourceNotFoundException("order not found"));
 
+    OrderItem item = orderItemRepository.findById(itemId)
+        .orElseThrow(() -> new ResourceNotFoundException("order item not found"));
+
+    if (!item.getOrder().getId().equals(orderId)) {
+      throw new ResourceNotFoundException("order item not found in this order");
+    }
+
+    order.getItems().remove(item);
+    order.setTotalAmount(calculateTotal(order.getItems()));
+
+    return orderRepository.save(order);
+  }
   public List<Order> getAllOrders() {
     return orderRepository.findAll();
   }
@@ -76,7 +114,29 @@ public class OrderService {
 
     return orderRepository.save(existingOrder);
   }
+  public Order createOrder(OrderRequest orderRequest) {
+    Order order = new Order();
+    order.setVendor(orderRequest.getVendor());
+    order.setDescription(orderRequest.getDescription());
+    order.setStatus(orderRequest.getStatus());
+    order.setCreatedBy(orderRequest.getCreatedBy());
+    order.setUpdatedBy(orderRequest.getUpdatedBy());
 
+    if (orderRequest.getItems() != null) {
+      orderRequest.getItems().forEach(itemRequest -> {
+        OrderItem item = new OrderItem();
+        item.setProductName(itemRequest.getProductName());
+        item.setQuantity(itemRequest.getQuantity());
+        item.setUnitPrice(itemRequest.getUnitPrice());
+        item.setOrder(order);
+        order.getItems().add(item);
+      });
+    }
+
+    order.setTotalAmount(calculateTotal(order.getItems()));
+
+    return orderRepository.save(order);
+  }
   public void deleteOrder(Long id) {
     if (!orderRepository.existsById(id)) {
       throw new ResourceNotFoundException("order not found");

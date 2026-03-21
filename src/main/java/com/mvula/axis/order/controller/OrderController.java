@@ -6,7 +6,8 @@ import com.mvula.axis.order.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
+import com.mvula.axis.order.dto.OrderItemCreateRequest;
+import com.mvula.axis.order.dto.OrderItemPatchRequest;
 import java.util.List;
 
 @RestController
@@ -16,6 +17,22 @@ public class OrderController {
 
   private final OrderService orderService;
 
+  @PostMapping("/{orderId}/items")
+  public Order addItemToOrder(@PathVariable Long orderId,
+      @Valid @RequestBody OrderItemCreateRequest itemRequest) {
+    return orderService.addItemToOrder(orderId, itemRequest);
+  }
+  @PatchMapping("/{orderId}/items/{itemId}")
+  public Order patchOrderItem(@PathVariable Long orderId,
+      @PathVariable Long itemId,
+      @RequestBody OrderItemPatchRequest itemRequest) {
+    return orderService.patchOrderItem(orderId, itemId, itemRequest);
+  }
+  @DeleteMapping("/{orderId}/items/{itemId}")
+  public Order deleteOrderItem(@PathVariable Long orderId,
+      @PathVariable Long itemId) {
+    return orderService.deleteOrderItem(orderId, itemId);
+  }
   @PostMapping
   public Order createOrder(@Valid @RequestBody OrderRequest orderRequest) {
     return orderService.createOrder(orderRequest);
