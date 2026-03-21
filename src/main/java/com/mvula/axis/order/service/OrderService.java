@@ -1,7 +1,9 @@
 package com.mvula.axis.order.service;
 
 import com.mvula.axis.common.exception.ResourceNotFoundException;
+import com.mvula.axis.order.dto.OrderItemResponse;
 import com.mvula.axis.order.dto.OrderRequest;
+import com.mvula.axis.order.dto.OrderResponse;
 import com.mvula.axis.order.entity.Order;
 import com.mvula.axis.order.entity.OrderItem;
 import com.mvula.axis.order.repository.OrderRepository;
@@ -21,7 +23,7 @@ public class OrderService {
   private final OrderRepository orderRepository;
   private final OrderItemRepository orderItemRepository;
 
-  public Order addItemToOrder(Long orderId, OrderItemCreateRequest itemRequest) {
+  public OrderResponse addItemToOrder(Long orderId, OrderItemCreateRequest itemRequest) {
     Order order = orderRepository.findById(orderId)
         .orElseThrow(() -> new ResourceNotFoundException("order not found"));
 
@@ -33,10 +35,10 @@ public class OrderService {
 
     order.getItems().add(item);
     order.setTotalAmount(calculateTotal(order.getItems()));
+    return mapToResponse(orderRepository.save(order));
 
-    return orderRepository.save(order);
   }
-  public Order patchOrderItem(Long orderId, Long itemId, OrderItemPatchRequest itemRequest) {
+  public OrderResponse patchOrderItem(Long orderId, Long itemId, OrderItemPatchRequest itemRequest) {
     Order order = orderRepository.findById(orderId)
         .orElseThrow(() -> new ResourceNotFoundException("order not found"));
 
@@ -60,10 +62,42 @@ public class OrderService {
     }
 
     order.setTotalAmount(calculateTotal(order.getItems()));
-
-    return orderRepository.save(order);
+    return mapToResponse(orderRepository.save(order));
   }
-  public Order deleteOrderItem(Long orderId, Long itemId) {
+
+  private OrderResponse mapToResponse(Order order) {
+    OrderResponse response = new OrderResponse();
+
+    response.setId(order.getId());
+    response.setVendor(order.getVendor());
+    response.setDescription(order.getDescription());
+    response.setStatus(order.getStatus());
+    response.setTotalAmount(order.getTotalAmount());
+    response.setCreatedBy(order.getCreatedBy());
+    response.setUpdatedBy(order.getUpdatedBy());
+    response.setCreatedAt(order.getCreatedAt());
+    response.setUpdatedAt(order.getUpdatedAt());
+
+    List<OrderItemResponse> itemResponses = order.getItems().stream().map(item -> {
+      OrderItemResponse itemResponse = new OrderItemResponse();
+      itemResponse.setId(item.getId());
+      itemResponse.setProductName(item.getProductName());
+      itemResponse.setQuantity(item.getQuantity());
+      itemResponse.setUnitPrice(item.getUnitPrice());
+
+      BigDecimal lineTotal = item.getUnitPrice()
+          .multiply(BigDecimal.valueOf(item.getQuantity()));
+
+      itemResponse.setLineTotal(lineTotal);
+
+      return itemResponse;
+    }).toList();
+
+    response.setItems(itemResponses);
+
+    return response;
+  }
+  public OrderResponse deleteOrderItem(Long orderId, Long itemId) {
     Order order = orderRepository.findById(orderId)
         .orElseThrow(() -> new ResourceNotFoundException("order not found"));
 
@@ -76,19 +110,23 @@ public class OrderService {
 
     order.getItems().remove(item);
     order.setTotalAmount(calculateTotal(order.getItems()));
-
-    return orderRepository.save(order);
-  }
-  public List<Order> getAllOrders() {
-    return orderRepository.findAll();
+    return mapToResponse(orderRepository.save(order));
   }
 
-  public Order getOrderById(Long id) {
-    return orderRepository.findById(id)
+  public List<OrderResponse> getAllOrders() {
+    return orderRepository.findAll().stream()
+        .map(this::mapToResponse)
+        .toList();
+  }
+
+  public OrderResponse getOrderById(Long id) {
+    Order order = orderRepository.findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("order not found"));
+
+    return mapToResponse(order);
   }
 
-  public Order updateOrder(Long id, OrderRequest orderRequest) {
+  public OrderResponse updateOrder(Long id, OrderRequest orderRequest) {
     Order existingOrder = orderRepository.findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("order not found"));
 
@@ -111,10 +149,9 @@ public class OrderService {
     }
 
     existingOrder.setTotalAmount(calculateTotal(existingOrder.getItems()));
-
-    return orderRepository.save(existingOrder);
+    return mapToResponse(orderRepository.save(existingOrder));
   }
-  public Order createOrder(OrderRequest orderRequest) {
+  public OrderResponse createOrder(OrderRequest orderRequest) {
     Order order = new Order();
     order.setVendor(orderRequest.getVendor());
     order.setDescription(orderRequest.getDescription());
@@ -134,8 +171,7 @@ public class OrderService {
     }
 
     order.setTotalAmount(calculateTotal(order.getItems()));
-
-    return orderRepository.save(order);
+    return mapToResponse(orderRepository.save(order));
   }
   public void deleteOrder(Long id) {
     if (!orderRepository.existsById(id)) {
@@ -154,7 +190,7 @@ public class OrderService {
         .reduce(BigDecimal.ZERO, BigDecimal::add);
   }
 
-  public Order patchOrder(Long id, OrderRequest orderRequest) {
+  public OrderResponse patchOrder(Long id, OrderRequest orderRequest) {
     Order existingOrder = orderRepository.findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("order not found"));
 
@@ -173,7 +209,6 @@ public class OrderService {
     if (orderRequest.getUpdatedBy() != null) {
       existingOrder.setUpdatedBy(orderRequest.getUpdatedBy());
     }
-
-    return orderRepository.save(existingOrder);
+    return mapToResponse(orderRepository.save(existingOrder));
   }
 }
