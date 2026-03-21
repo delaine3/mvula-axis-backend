@@ -1,5 +1,6 @@
 package com.mvula.axis.order.controller;
 
+import com.mvula.axis.common.dto.PagedResponse;
 import com.mvula.axis.order.dto.OrderItemCreateRequest;
 import com.mvula.axis.order.dto.OrderItemPatchRequest;
 import com.mvula.axis.order.dto.OrderRequest;
@@ -7,7 +8,6 @@ import com.mvula.axis.order.dto.OrderResponse;
 import com.mvula.axis.order.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -42,9 +42,13 @@ public class OrderController {
   }
 
   @GetMapping
-  public Page<OrderResponse> getAllOrders(
-      @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
-    return orderService.getAllOrders(page, size);
+  public PagedResponse<OrderResponse> getAllOrders(
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size,
+      @RequestParam(defaultValue = "createdAt") String sortBy,
+      @RequestParam(defaultValue = "desc") String sortDir,
+      @RequestParam(required = false) String search) {
+    return orderService.getAllOrders(page, size, sortBy, sortDir, search);
   }
 
   @GetMapping("/{id}")

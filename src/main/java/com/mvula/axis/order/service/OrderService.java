@@ -1,5 +1,6 @@
 package com.mvula.axis.order.service;
 
+import com.mvula.axis.common.dto.PagedResponse;
 import com.mvula.axis.common.exception.ResourceNotFoundException;
 import com.mvula.axis.order.dto.OrderItemCreateRequest;
 import com.mvula.axis.order.dto.OrderItemPatchRequest;
@@ -10,12 +11,14 @@ import com.mvula.axis.order.entity.Order;
 import com.mvula.axis.order.entity.OrderItem;
 import com.mvula.axis.order.repository.OrderItemRepository;
 import com.mvula.axis.order.repository.OrderRepository;
+import com.mvula.axis.order.specification.OrderSpecification;
 import java.math.BigDecimal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -131,10 +134,26 @@ public class OrderService {
     return mapToResponse(orderRepository.save(order));
   }
 
-  public Page<OrderResponse> getAllOrders(int page, int size) {
-    Pageable pageable = PageRequest.of(page, size);
+  public PagedResponse<OrderResponse> getAllOrders(
+      int page, int size, String sortBy, String sortDir, String search) {
+    Sort sort =
+        sortDir.equalsIgnoreCase("asc")
+            ? Sort.by(sortBy).ascending()
+            : Sort.by(sortBy).descending();
 
-    return orderRepository.findAll(pageable).map(this::mapToResponse);
+    Pageable pageable = PageRequest.of(page, size, sort);
+
+    Page<Order> orderPage =
+        orderRepository.findAll(OrderSpecification.containsText(search), pageable);
+
+    PagedResponse<OrderResponse> response = new PagedResponse<>();
+    response.setItems(orderPage.getContent().stream().map(this::mapToResponse).toList());
+    response.setPage(orderPage.getNumber());
+    response.setSize(orderPage.getSize());
+    response.setTotalItems(orderPage.getTotalElements());
+    response.setTotalPages(orderPage.getTotalPages());
+
+    return response;
   }
 
   public OrderResponse getOrderById(Long id) {
