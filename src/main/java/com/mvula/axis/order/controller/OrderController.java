@@ -8,7 +8,9 @@ import com.mvula.axis.order.dto.OrderResponse;
 import com.mvula.axis.order.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 @RestController
 @RequestMapping("/orders")
@@ -37,10 +39,10 @@ public class OrderController {
   }
 
   @PostMapping
+  @ResponseStatus(HttpStatus.CREATED)
   public OrderResponse createOrder(@Valid @RequestBody OrderRequest orderRequest) {
     return orderService.createOrder(orderRequest);
   }
-
   @GetMapping
   public PagedResponse<OrderResponse> getAllOrders(
       @RequestParam(defaultValue = "0") int page,

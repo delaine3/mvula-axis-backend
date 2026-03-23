@@ -213,13 +213,16 @@ public class OrderService {
                 item.setProductName(itemRequest.getProductName());
                 item.setQuantity(itemRequest.getQuantity());
                 item.setUnitPrice(itemRequest.getUnitPrice());
+
                 item.setOrder(order);
                 order.getItems().add(item);
               });
     }
 
     order.setTotalAmount(calculateTotal(order.getItems()));
-    return mapToResponse(orderRepository.save(order));
+
+    Order savedOrder = orderRepository.save(order);
+    return mapToResponse(savedOrder);
   }
 
   public void deleteOrder(Long id) {
