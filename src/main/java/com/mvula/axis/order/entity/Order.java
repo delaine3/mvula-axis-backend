@@ -1,14 +1,14 @@
 package com.mvula.axis.order.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.mvula.axis.vendor.entity.Vendor;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Data;
 
 @Entity
 @Table(name = "orders")
@@ -20,11 +20,14 @@ public class Order {
   @Column(name = "order_id")
   private Long id;
 
-  @NotBlank
-  @Column(nullable = false)
-  private String vendor;
+  @ManyToOne
+  @JoinColumn(name = "vendor_id", nullable = false)
+  private Vendor vendor;
 
   private String description;
+
+  @Column(nullable = false)
+  private Boolean isPaid = false;
 
   @Column(nullable = false)
   private BigDecimal totalAmount = BigDecimal.ZERO;

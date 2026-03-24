@@ -1,26 +1,27 @@
 package com.mvula.axis.order.dto;
 
+import com.mvula.axis.vendor.dto.VendorRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
-
 import java.util.List;
+import lombok.Data;
 
 @Data
 public class OrderRequest {
 
-  @NotBlank
-  private String vendor;
+  private Long vendorId;
+
+  @Valid private VendorRequest newVendor;
 
   private String description;
 
-  @NotBlank
-  private String status;
+  private Boolean isPaid;
+
+  @NotBlank private String status;
 
   private String createdBy;
 
   private String updatedBy;
 
-  @Valid
-  private List<OrderItemRequest> items;
+  @Valid private List<OrderItemRequest> items;
 }
