@@ -5,7 +5,10 @@ import com.mvula.axis.disbursement.dto.CreateDisbursementRequest;
 import com.mvula.axis.disbursement.dto.DisbursementResponse;
 import com.mvula.axis.disbursement.service.DisbursementService;
 import jakarta.validation.Valid;
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,8 +30,9 @@ public class DisbursementController {
   }
 
   @GetMapping
-  public List<DisbursementResponse> getAllDisbursements() {
-    return disbursementService.getAllDisbursements();
+  public Page<DisbursementResponse> getAllDisbursements(
+      @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+    return disbursementService.getAllDisbursements(pageable);
   }
 
   @GetMapping("/{id}")

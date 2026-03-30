@@ -11,7 +11,8 @@ import com.mvula.axis.disbursement.repository.DisbursementPaymentRepository;
 import com.mvula.axis.disbursement.repository.DisbursementRepository;
 import jakarta.persistence.EntityNotFoundException;
 import java.math.BigDecimal;
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,8 +56,9 @@ public class DisbursementServiceImpl implements DisbursementService {
 
   @Override
   @Transactional(readOnly = true)
-  public List<DisbursementResponse> getAllDisbursements() {
-    return disbursementRepository.findAll().stream().map(DisbursementMapper::toResponse).toList();
+  public Page<DisbursementResponse> getAllDisbursements(Pageable pageable) {
+    return disbursementRepository.findAll(pageable)
+        .map(DisbursementMapper::toResponse);
   }
 
   @Override
