@@ -22,7 +22,14 @@ public class SecurityConfig {
             auth ->
                 auth.requestMatchers(HttpMethod.OPTIONS, "/**")
                     .permitAll()
-                    .requestMatchers("/hello", "/orders", "/orders/**", "/vendors", "/vendors/**")
+                    .requestMatchers(
+                        "/hello",
+                        "/orders",
+                        "/orders/**",
+                        "/vendors",
+                        "/vendors/**",
+                        "/disbursements/",
+                        "/disbursements/**")
                     .permitAll()
                     .anyRequest()
                     .authenticated())

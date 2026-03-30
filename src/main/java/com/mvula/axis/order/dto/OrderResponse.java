@@ -19,10 +19,10 @@ public class OrderResponse {
   private String createdBy;
   private String updatedBy;
 
-  @JsonFormat(pattern = "dd-MM-yyyy")
+  @JsonFormat(pattern = "dd-MM-yyyy HH:mm")
   private LocalDateTime createdAt;
 
-  @JsonFormat(pattern = "dd-MM-yyyy")
+  @JsonFormat(pattern = "dd-MM-yyyy HH:mm")
   private LocalDateTime updatedAt;
 
   private List<OrderItemResponse> items;
