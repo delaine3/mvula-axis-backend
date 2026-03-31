@@ -23,8 +23,6 @@ public class DisbursementMapper {
     response.setCurrency(disbursement.getCurrency());
     response.setDueDate(disbursement.getDueDate());
     response.setStatus(disbursement.getStatus());
-    response.setIsInstallment(disbursement.getIsInstallment());
-    response.setInstallmentCount(disbursement.getInstallmentCount());
     response.setNotes(disbursement.getNotes());
     response.setCreatedBy(disbursement.getCreatedBy());
     response.setUpdatedBy(disbursement.getUpdatedBy());
@@ -39,6 +37,10 @@ public class DisbursementMapper {
                 .toList();
 
     response.setPayments(payments);
+
+    int paymentCount = payments.size();
+    response.setIsInstallment(paymentCount > 1);
+    response.setInstallmentCount(paymentCount);
 
     BigDecimal totalPaid =
         payments.stream()

@@ -1,5 +1,6 @@
 package com.mvula.axis.disbursement.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.mvula.axis.disbursement.entity.DisbursementStatus;
 import com.mvula.axis.disbursement.entity.PayeeType;
 import java.math.BigDecimal;
@@ -19,14 +20,22 @@ public class DisbursementResponse {
   private BigDecimal totalPaid;
   private BigDecimal balanceOutstanding;
   private String currency;
+
+  @JsonFormat(pattern = "dd-MM-yyyy")
   private LocalDate dueDate;
+
   private DisbursementStatus status;
   private Boolean isInstallment;
   private Integer installmentCount;
   private String notes;
   private String createdBy;
   private String updatedBy;
+
+  @JsonFormat(pattern = "dd-MM-yyyy HH:mm")
   private LocalDateTime createdAt;
+
+  @JsonFormat(pattern = "dd-MM-yyyy HH:mm")
   private LocalDateTime updatedAt;
+
   private List<DisbursementPaymentResponse> payments;
 }

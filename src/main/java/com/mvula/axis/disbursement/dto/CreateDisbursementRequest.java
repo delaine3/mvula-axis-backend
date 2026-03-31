@@ -25,13 +25,6 @@ public class CreateDisbursementRequest {
   private BigDecimal totalCharged;
 
   private String currency;
-
   private LocalDate dueDate;
-
-  @NotNull(message = "Installment flag is required")
-  private Boolean isInstallment;
-
-  private Integer installmentCount;
-
   private String notes;
 }

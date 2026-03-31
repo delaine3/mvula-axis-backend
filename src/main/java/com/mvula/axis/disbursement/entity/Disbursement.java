@@ -41,12 +41,6 @@ public class Disbursement {
   @Column(name = "status", nullable = false, length = 30)
   private DisbursementStatus status = DisbursementStatus.UNPAID;
 
-  @Column(name = "is_installment", nullable = false)
-  private Boolean isInstallment = false;
-
-  @Column(name = "installment_count")
-  private Integer installmentCount;
-
   @Column(name = "notes", columnDefinition = "TEXT")
   private String notes;
 
