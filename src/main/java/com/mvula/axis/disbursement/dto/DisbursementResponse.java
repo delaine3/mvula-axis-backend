@@ -21,7 +21,7 @@ public class DisbursementResponse {
   private BigDecimal balanceOutstanding;
   private String currency;
 
-  @JsonFormat(pattern = "dd-MM-yyyy")
+  @JsonFormat(pattern = "yyyy-MM-dd")
   private LocalDate dueDate;
 
   private DisbursementStatus status;

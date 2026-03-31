@@ -38,7 +38,7 @@ public class DisbursementPayment {
   @Column(name = "payment_method", length = 50)
   private String paymentMethod;
 
-  @Column(name = "reference_number", length = 100)
+  @Column(name = "reference_number", length = 100, nullable = false, unique = true)
   private String referenceNumber;
 
   @Column(name = "notes", columnDefinition = "TEXT")

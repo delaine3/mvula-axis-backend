@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface DisbursementPaymentRepository extends JpaRepository<DisbursementPayment, Long> {
 
   List<DisbursementPayment> findByDisbursementId(Long disbursementId);
+
+  boolean existsByReferenceNumber(String referenceNumber);
 }

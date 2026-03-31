@@ -13,6 +13,8 @@ import com.mvula.axis.disbursement.repository.DisbursementRepository;
 import com.mvula.axis.disbursement.specification.DisbursementSpecification;
 import jakarta.persistence.EntityNotFoundException;
 import java.math.BigDecimal;
+import java.time.format.DateTimeFormatter;
+import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -155,12 +157,16 @@ public class DisbursementServiceImpl implements DisbursementService {
                     new EntityNotFoundException(
                         "Disbursement not found with id: " + disbursementId));
 
+    if (disbursement.getStatus() == DisbursementStatus.CANCELLED) {
+      throw new IllegalStateException("Cannot add payment to a cancelled disbursement");
+    }
+
     DisbursementPayment payment = new DisbursementPayment();
     payment.setDisbursement(disbursement);
     payment.setDatePaid(request.getDatePaid());
     payment.setAmountPaid(request.getAmountPaid());
     payment.setPaymentMethod(request.getPaymentMethod());
-    payment.setReferenceNumber(request.getReferenceNumber());
+    payment.setReferenceNumber(generateUniqueReferenceNumber());
     payment.setNotes(request.getNotes());
 
     paymentRepository.save(payment);
@@ -184,6 +190,18 @@ public class DisbursementServiceImpl implements DisbursementService {
 
     Disbursement saved = disbursementRepository.save(disbursement);
     return DisbursementMapper.toResponse(saved);
+  }
+
+  private String generateUniqueReferenceNumber() {
+    String referenceNumber;
+
+    do {
+      String datePart = java.time.LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE);
+      String randomPart = UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+      referenceNumber = "DPAY-" + datePart + "-" + randomPart;
+    } while (paymentRepository.existsByReferenceNumber(referenceNumber));
+
+    return referenceNumber;
   }
 
   private void updateStatus(Disbursement disbursement) {

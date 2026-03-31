@@ -18,7 +18,5 @@ public class CreateDisbursementPaymentRequest {
 
   private String paymentMethod;
 
-  private String referenceNumber;
-
   private String notes;
 }
