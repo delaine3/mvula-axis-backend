@@ -2,6 +2,7 @@ package com.mvula.axis.disbursement.controller;
 
 import com.mvula.axis.disbursement.dto.CreateDisbursementPaymentRequest;
 import com.mvula.axis.disbursement.dto.CreateDisbursementRequest;
+import com.mvula.axis.disbursement.dto.DisbursementPaymentResponse;
 import com.mvula.axis.disbursement.dto.DisbursementResponse;
 import com.mvula.axis.disbursement.entity.DisbursementStatus;
 import com.mvula.axis.disbursement.entity.PayeeType;
@@ -64,6 +65,11 @@ public class DisbursementController {
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void deleteDisbursement(@PathVariable Long id) {
     disbursementService.deleteDisbursement(id);
+  }
+
+  @GetMapping("/{id}/payments")
+  public Page<DisbursementPaymentResponse> getPayments(@PathVariable Long id, Pageable pageable) {
+    return disbursementService.getPayments(id, pageable);
   }
 
   @PostMapping("/{id}/cancel")

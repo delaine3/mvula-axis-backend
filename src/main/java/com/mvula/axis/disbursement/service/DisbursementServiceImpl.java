@@ -2,6 +2,7 @@ package com.mvula.axis.disbursement.service;
 
 import com.mvula.axis.disbursement.dto.CreateDisbursementPaymentRequest;
 import com.mvula.axis.disbursement.dto.CreateDisbursementRequest;
+import com.mvula.axis.disbursement.dto.DisbursementPaymentResponse;
 import com.mvula.axis.disbursement.dto.DisbursementResponse;
 import com.mvula.axis.disbursement.entity.Disbursement;
 import com.mvula.axis.disbursement.entity.DisbursementPayment;
@@ -33,6 +34,18 @@ public class DisbursementServiceImpl implements DisbursementService {
       DisbursementPaymentRepository paymentRepository) {
     this.disbursementRepository = disbursementRepository;
     this.paymentRepository = paymentRepository;
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public Page<DisbursementPaymentResponse> getPayments(Long disbursementId, Pageable pageable) {
+    if (!disbursementRepository.existsById(disbursementId)) {
+      throw new EntityNotFoundException("Disbursement not found with id: " + disbursementId);
+    }
+
+    return paymentRepository
+        .findByDisbursementId(disbursementId, pageable)
+        .map(DisbursementMapper::toPaymentResponse);
   }
 
   @Override

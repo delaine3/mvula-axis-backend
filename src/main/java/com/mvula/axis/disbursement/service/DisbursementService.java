@@ -2,6 +2,7 @@ package com.mvula.axis.disbursement.service;
 
 import com.mvula.axis.disbursement.dto.CreateDisbursementPaymentRequest;
 import com.mvula.axis.disbursement.dto.CreateDisbursementRequest;
+import com.mvula.axis.disbursement.dto.DisbursementPaymentResponse;
 import com.mvula.axis.disbursement.dto.DisbursementResponse;
 import com.mvula.axis.disbursement.entity.DisbursementStatus;
 import com.mvula.axis.disbursement.entity.PayeeType;
@@ -21,6 +22,8 @@ public interface DisbursementService {
       Pageable pageable);
 
   DisbursementResponse getDisbursementById(Long id);
+
+  Page<DisbursementPaymentResponse> getPayments(Long disbursementId, Pageable pageable);
 
   DisbursementResponse addPayment(Long disbursementId, CreateDisbursementPaymentRequest request);
 
